@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/food_truck.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -6,171 +7,217 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with actual data from backend
-    final foodTruck = FoodTruck(
-      id: '1',
-      name: 'Tasty Bites',
-      description: 'Serving delicious street food since 2020',
-      branding: FoodTruckBranding(
-        logoUrl: 'https://picsum.photos/200',
-        coverImageUrl: 'https://picsum.photos/800/400',
-        primaryColor: '#FF5722',
-        secondaryColor: '#FFA726',
-        slogan: 'Taste the Street!',
-      ),
-      categories: ['Burgers', 'Tacos', 'Fries'],
-      currentLocation: Location(
+    // Sample data for demonstration
+    final featuredTrucks = [
+      FoodTruck(
+        id: '1',
+        vendorId: 'v1',
+        name: 'Taco Truck',
+        description: 'Authentic Mexican street food',
+        imageUrl: 'https://example.com/taco.jpg',
+        categories: ['Mexican', 'Street Food'],
         latitude: 37.7749,
         longitude: -122.4194,
-        address: '123 Food Street, San Francisco, CA',
+        branding: FoodTruckBranding(
+          primaryColor: '#FF5733',
+          secondaryColor: '#33FF57',
+        ),
+        operatingHours: {
+          1: '9:00 AM - 5:00 PM',
+          2: '9:00 AM - 5:00 PM',
+          3: '9:00 AM - 5:00 PM',
+          4: '9:00 AM - 5:00 PM',
+          5: '9:00 AM - 5:00 PM',
+        },
       ),
-      isOpen: true,
-      rating: 4.5,
-      reviewCount: 128,
-      menuIds: ['1', '2', '3'],
-      operatingHours: {
-        'Monday': '9:00-17:00',
-        'Tuesday': '9:00-17:00',
-        'Wednesday': '9:00-17:00',
-        'Thursday': '9:00-17:00',
-        'Friday': '9:00-20:00',
-        'Saturday': '10:00-20:00',
-        'Sunday': 'Closed',
-      },
-    );
+      FoodTruck(
+        id: '2',
+        vendorId: 'v2',
+        name: 'Burger Bus',
+        description: 'Gourmet burgers on wheels',
+        imageUrl: 'https://example.com/burger.jpg',
+        categories: ['American', 'Burgers'],
+        latitude: 37.7833,
+        longitude: -122.4167,
+        branding: FoodTruckBranding(
+          primaryColor: '#3357FF',
+          secondaryColor: '#FF33F6',
+        ),
+        operatingHours: {
+          1: '10:00 AM - 6:00 PM',
+          2: '10:00 AM - 6:00 PM',
+          3: '10:00 AM - 6:00 PM',
+          4: '10:00 AM - 6:00 PM',
+          5: '10:00 AM - 6:00 PM',
+        },
+      ),
+    ];
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(foodTruck.name),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                    ],
-                  ),
-                ),
-                child: Image.network(
-                  foodTruck.branding.coverImageUrl ??
-                      'https://picsum.photos/800/400',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.image, size: 50, color: Colors.grey),
-                      ),
-                    );
-                  },
-                ),
-              ),
+      appBar: AppBar(
+        title: const Text('Food Truck(s) Order System'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              // TODO: Implement search
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              // TODO: Implement filters
+            },
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            'Featured Food Trucks',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: featuredTrucks.length,
+              itemBuilder: (context, index) {
+                return _buildFeaturedTruckCard(context, featuredTrucks[index]);
+              },
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    foodTruck.branding.slogan ?? '',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInfoCard(
-                    context,
-                    'Location',
-                    foodTruck.currentLocation.address ?? 'No address available',
-                    Icons.location_on,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildInfoCard(
-                    context,
-                    'Status',
-                    foodTruck.isOpen ? 'Open' : 'Closed',
-                    Icons.circle,
-                    color: foodTruck.isOpen ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildInfoCard(
-                    context,
-                    'Rating',
-                    '${foodTruck.rating} (${foodTruck.reviewCount} reviews)',
-                    Icons.star,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Today\'s Hours',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildHoursCard(context, foodTruck),
-                ],
-              ),
-            ),
+          const SizedBox(height: 24),
+          Text(
+            'Operating Hours',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
+          const SizedBox(height: 16),
+          ...featuredTrucks
+              .map((truck) => _buildOperatingHours(context, truck)),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(
-    BuildContext context,
-    String title,
-    String value,
-    IconData icon, {
-    Color? color,
-  }) {
+  Widget _buildFeaturedTruckCard(BuildContext context, FoodTruck truck) {
     return Card(
-      child: ListTile(
-        leading: Icon(icon, color: color),
-        title: Text(title),
-        subtitle: Text(value),
-      ),
-    );
-  }
-
-  Widget _buildHoursCard(BuildContext context, FoodTruck foodTruck) {
-    final now = DateTime.now();
-    final today = now.weekday.toString().toLowerCase();
-    final hours = foodTruck.operatingHours[today] ?? 'Closed';
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(right: 16),
+      child: Container(
+        width: 200,
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Today: $hours',
-              style: Theme.of(context).textTheme.titleMedium,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                truck.imageUrl,
+                height: 100,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 100,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.restaurant, size: 32),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 8),
-            const Text('Full Schedule:'),
+            Text(
+              truck.name,
+              style: Theme.of(context).textTheme.titleMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 4),
-            ...foodTruck.operatingHours.entries.map(
-              (entry) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(entry.key),
-                    Text(entry.value),
-                  ],
-                ),
-              ),
+            Text(
+              truck.description,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              children: truck.categories.map((category) {
+                return Chip(
+                  label: Text(
+                    category,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  padding: EdgeInsets.zero,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                );
+              }).toList(),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildOperatingHours(BuildContext context, FoodTruck truck) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              truck.name,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            ...truck.operatingHours.entries.map((entry) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: Text(
+                        _getDayName(entry.key),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    Text(
+                      entry.value,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getDayName(int day) {
+    switch (day) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return '';
+    }
   }
 }
